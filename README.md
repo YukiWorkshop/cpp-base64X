@@ -1,4 +1,7 @@
 # cpp-base64X
+[![pipeline status](https://gitlab.com/ReimuNotMoe/cpp-base64X/badges/master/pipeline.svg)](https://gitlab.com/ReimuNotMoe/cpp-base64X/commits/master)
+[![coverage report](https://gitlab.com/ReimuNotMoe/cpp-base64X/badges/master/coverage.svg)](https://gitlab.com/ReimuNotMoe/cpp-base64X/commits/master)
+
 Probably the most convenient & powerful C++ base64 library.
 
 ## Features
