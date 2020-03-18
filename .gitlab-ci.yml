@@ -6,6 +6,9 @@ stages:
 
 before_script:
   - apt-get update && apt-get -y install git build-essential cmake lcov
+  - git submodule sync --recursive
+  - git submodule update --init --recursive
+
 
 build:
   stage: build
