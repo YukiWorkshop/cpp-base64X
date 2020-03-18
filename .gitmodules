@@ -1,0 +1,3 @@
+[submodule "3rdParty/base64"]
+	path = 3rdParty/base64
+	url = https://github.com/aklomp/base64
