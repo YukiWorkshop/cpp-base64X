@@ -1,6 +1,6 @@
 /*
     This file is part of cpp-base64.
-    Copyright (C) 2020 ReimuNotMoe
+    Copyright (C) 2020-2021 ReimuNotMoe <reimu@sudomaker.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the MIT License.
@@ -62,17 +62,17 @@ int main() {
 	// Encode
 	std::string buf0 = "roses are red";
 	std::vector<uint8_t> buf1(buf0.begin(), buf0.end());
-	std::string out3 = Base64X::encode(buf1);
+	auto out3 = Base64X::encode(buf1).as<std::string>();
 	std::cout << out3 << "\n";
 
-	std::vector<uint8_t> out4 = Base64X::encode("violets are blue");
+	auto out4 = Base64X::encode("violets are blue").as<std::vector<uint8_t>>();
 	fwrite(out4.data(), 1, out4.size(), stdout);
 	fputc('\n', stdout);
 
 	// Decode
-	std::string dout3 = Base64X::decode(out3);
+	auto dout3 = Base64X::decode(out3).as<std::string>();
 	std::cout << dout3 << "\n";
-	std::vector<uint8_t> dout4 = Base64X::decode(out4);
+	auto dout4 = Base64X::decode(out4).as<std::vector<uint8_t>>();
 	fwrite(dout4.data(), 1, dout4.size(), stdout);
 	fputc('\n', stdout);
 
@@ -80,14 +80,14 @@ int main() {
 	// Example 4
 	// Encode
 	std::vector<double> buf2 = {3.14159265357, 42.42, 233.233, 666.666};
-	std::vector<uint8_t> out5 = Base64X::encode(buf2);
+	auto out5 = Base64X::encode(buf2).as<std::vector<uint8_t>>();
 	fwrite(out5.data(), 1, out5.size(), stdout);
 	fputc('\n', stdout);
 
 	// Decode
-	std::vector<uint8_t> dout5 = Base64X::decode(out5);
-	for (size_t i=0; i<4; i++) {
-		std::cout << ((double *)dout5.data())[i] << " ";
+	auto dout5 = Base64X::decode(out5).as_vector<double>();
+	for (auto &it : dout5) {
+		std::cout << it << " ";
 	}
 	std::cout << "\n";
 

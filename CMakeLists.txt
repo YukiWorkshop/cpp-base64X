@@ -12,8 +12,12 @@ set(SOURCE_FILES_BASE64
         3rdParty/base64/lib/arch/sse42/codec.c 3rdParty/base64/lib/arch/avx/codec.c
         3rdParty/base64/lib/tables/tables.c
         3rdParty/base64/lib/lib.c 3rdParty/base64/lib/codec_choose.c)
-add_library(cpp-base64X ${SOURCE_FILES_BASE64})
-SET_TARGET_PROPERTIES(cpp-base64X PROPERTIES COMPILE_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
+add_library(aklomp_base64 ${SOURCE_FILES_BASE64})
+SET_TARGET_PROPERTIES(aklomp_base64 PROPERTIES COMPILE_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
+
+add_library(cpp-base64X cpp-base64X.cpp)
+target_include_directories(cpp-base64X INTERFACE .)
+target_link_libraries(cpp-base64X aklomp_base64)
 
 add_executable(cpp-base64X-Test test.cpp)
 target_link_libraries(cpp-base64X-Test cpp-base64X)

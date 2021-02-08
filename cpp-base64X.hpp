@@ -1,6 +1,6 @@
 /*
     This file is part of cpp-base64.
-    Copyright (C) 2020 ReimuNotMoe
+    Copyright (C) 2020-2021 ReimuNotMoe <reimu@sudomaker.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the MIT License.
@@ -12,10 +12,12 @@
 
 #pragma once
 
+#include <cmath>
 #include <iostream>
 #include <vector>
 #include <string>
 
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
 
@@ -23,135 +25,82 @@
 
 namespace YukiWorkshop::Base64X {
 
-	auto encode(const char *__input, size_t __size) {
-		struct ret {
-			const char *__input;
-			size_t __size;
+	class encode_state {
+	private:
+		const char *buf_;
+		size_t len_;
 
-			size_t required_size() {
-				return __size * 4 / 3 + 4;
-			}
+		size_t required_size() {
+			return len_ * 4 / 3 + 4;
+		}
+	public:
+		encode_state(const char *buf, size_t len) : buf_(buf), len_(len) {
 
-			operator std::string() {
-				std::string ret;
-				size_t encoded_size;
-				ret.resize(required_size());
-				base64_encode(__input, __size, (char *)ret.data(), &encoded_size, 0);
-				ret.resize(encoded_size);
-				return ret;
-			}
+		}
 
-			operator std::vector<uint8_t>() {
-				std::vector<uint8_t> ret;
-				size_t encoded_size;
-				ret.resize(required_size());
-				base64_encode(__input, __size, (char *)ret.data(), &encoded_size, 0);
-				ret.resize(encoded_size);
-				return ret;
-			}
-		};
-
-		return ret{__input, __size};
-	}
+		template <typename T>
+		T as() {
+			T ret;
+			size_t encoded_size;
+			ret.resize(required_size());
+			base64_encode(buf_, len_, (char *)ret.data(), &encoded_size, 0);
+			ret.resize(encoded_size);
+			return ret;
+		}
+	};
 
 	template <typename T, typename A>
-	auto encode(const std::vector<T, A>& __input) {
-		struct ret {
-			const std::vector<T, A>& __input;
-
-
-			operator std::string() {
-				return encode((const char *)__input.data(), __input.size() * sizeof(T));
-			}
-
-			operator std::vector<uint8_t>() {
-				return encode((const char *)__input.data(), __input.size() * sizeof(T));
-			}
-		};
-
-		return ret{__input};
-	}
-
-	auto encode(const char *__input) {
-		struct ret {
-			const char *__input;
-
-			operator std::string() {
-				return encode(__input, strlen(__input));
-			}
-
-			operator std::vector<uint8_t>() {
-				return encode(__input, strlen(__input));
-			}
-		};
-
-		return ret{__input};
+	encode_state encode(const std::vector<T, A>& __input) {
+		return encode_state{(const char *)__input.data(), __input.size() * sizeof(T)};
 	}
 
 	template <typename T>
-	auto encode(const T& __input) {
-		struct ret {
-			const T& __input;
-
-
-			operator std::string() {
-				return encode((const char *)__input.data(), __input.size());
-			}
-
-			operator std::vector<uint8_t>() {
-				return encode((const char *)__input.data(), __input.size());
-			}
-		};
-
-		return ret{__input};
+	encode_state encode(const T& __input) {
+		return encode_state{(const char *)__input.data(), __input.size()};
 	}
+
+	encode_state encode(const void *__input, size_t __len);
+	encode_state encode(const char *__input);
+
+	class decode_state {
+	private:
+		const char *buf_;
+		size_t len_;
+
+	public:
+		decode_state(const char *buf, size_t len) : buf_(buf), len_(len) {
+
+		}
+
+		template <typename T, typename A = std::allocator<T>>
+		std::vector<T, A> as_vector() {
+			puts("a");
+			std::vector<T, A> ret;
+			size_t decoded_size;
+			ret.resize(std::ceil((float)len_ / sizeof(T)));
+			base64_decode(buf_, len_, (char *)ret.data(), &decoded_size, 0);
+			ret.resize(std::ceil((float)decoded_size / sizeof(T)));
+			return ret;
+		}
+
+		template <typename T>
+		T as() {
+			T ret;
+			size_t decoded_size;
+			ret.resize(len_);
+			base64_decode(buf_, len_, (char *)ret.data(), &decoded_size, 0);
+			ret.resize(decoded_size);
+			return ret;
+		}
+	};
 
 	template <typename T>
-	auto decode(const T& __input) {
-		struct ret {
-			const T& __input;
-
-			size_t required_size() {
-				return __input.size() * 3 / 4 + 4;
-			}
-
-			operator std::string() {
-				std::string ret;
-				size_t decoded_size;
-				ret.resize(required_size());
-				base64_decode((const char *)__input.data(), __input.size(), (char *)ret.data(), &decoded_size, 0);
-				ret.resize(decoded_size);
-				return ret;
-			}
-
-			operator std::vector<uint8_t>() {
-				std::vector<uint8_t> ret;
-				size_t decoded_size;
-				ret.resize(required_size());
-				base64_decode((const char *)__input.data(), __input.size(), (char *)ret.data(), &decoded_size, 0);
-				ret.resize(decoded_size);
-				return ret;
-			}
-		};
-
-		return ret{__input};
+	decode_state decode(const T& __input) {
+		return decode_state{(const char *)__input.data(), __input.size()};
 	}
 
-	auto decode(const char *__input) {
-		struct ret {
-			const char *__input;
-
-			operator std::string() {
-				return decode(std::string_view(__input));
-			}
-
-			operator std::vector<uint8_t>() {
-				return decode(std::string_view(__input));
-			}
-		};
-
-		return ret{__input};
-	}
+	decode_state decode(const void *__input, size_t __len);
+	decode_state decode(const char *__input);
 
 	template <typename T>
 	class Encoder {

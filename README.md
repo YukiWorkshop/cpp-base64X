@@ -24,22 +24,10 @@ include(cmake/CPM.cmake)
 CPMAddPackage(
         NAME cpp-base64X
         GITHUB_REPOSITORY YukiWorkshop/cpp-base64X
-        VERSION 0.0.1
+        VERSION 0.0.2
 )
 
 target_include_directories(your_project PUBLIC ${cpp-base64X_SOURCE_DIR})
-target_link_libraries(your_project cpp-base64X)
-```
-
-Or manually clone & add:
-```shell script
-mkdir cpp_modules && cd cpp_modules
-git clone --recursive https://github.com/YukiWorkshop/cpp-base64X
-```
-
-```cmake
-add_subdirectory(cpp_modules/cpp-base64X)
-target_include_directories(your_project PUBLIC cpp_modules/cpp-base64X)
 target_link_libraries(your_project cpp-base64X)
 ```
 
@@ -52,28 +40,28 @@ using namespace YukiWorkshop;
 
 One-time conversion:
 ```cpp
-std::string s = Base64X::encode("Hello");
-std::string s2 = Base64X::decode(s);
+auto s = Base64X::encode("Hello").as<std::string>();
+auto s2 = Base64X::decode(s).as<std::string>();
 ```
 
-You can use different input/output types. But the return type is limited to `std::string` and `std::vector<uint8_t>`.
+You can use different input/output types. But the return type is limited to container types which element size is 1 (`uint8_t`, `char`, etc).
 
-Note that you can only decode vectors which element size is 1 (`uint8_t`, `char`, etc).
+Note that you can only decode containers which element size is 1 (`uint8_t`, `char`, etc).
 
 From vectors instead of strings:
 ```cpp
 std::vector<uint8_t> v = {0xaa, 0x55, 0x01, 0x02, 0x03};
-std::vector<uint8_t> s = Base64X::encode(v);
-std::string v2 = Base64X::decode(s);
+auto s = Base64X::encode(v).as<std::vector<uint8_t>>();
+std::vector<uint8_t> v2 = Base64X::decode(s).as_vector<uint8_t>();
 ```
 
 And even vectors with doubles inside:
 ```cpp
 std::vector<double> v = {3.14159265357, 42.42, 233.233, 666.666};
-std::vector<uint8_t> s = Base64X::encode(v);
-std::vector<uint8_t> v2 = Base64X::decode(s);
-for (size_t i=0; i<4; i++) {
-    std::cout << ((double *)v2.data())[i] << " ";
+auto s = Base64X::encode(v).as<std::vector<uint8_t>>();
+auto v2 = Base64X::decode(s).as_vector<double>();
+for (auto &it : v2) {
+    std::cout << it << " ";
 }
 ```
 
